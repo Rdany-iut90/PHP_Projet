@@ -1,0 +1,38 @@
+{# templates/pagination.html.twig #}
+{% if pagination.pageCount > 1 %}
+    <nav>
+        <ul class="pagination">
+            {% if pagination.previousPage %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ pagination.generateUrl(pagination.previousPage) }}">Précédent</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Précédent</span>
+                </li>
+            {% endif %}
+
+            {% for page in pagination.pagesInRange %}
+                {% if page != pagination.currentPageNumber %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ pagination.generateUrl(page) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page }}</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if pagination.nextPage %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ pagination.generateUrl(pagination.nextPage) }}">Suivant</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">Suivant</span>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+{% endif %}

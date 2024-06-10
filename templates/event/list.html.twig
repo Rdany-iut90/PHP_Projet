@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des événements{% endblock %}
+
+{% block body %}
+<h1>Liste des événements</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Titre</th>
+            <th>Description</th>
+            <th>Date et Heure</th>
+            <th>Publique</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in pagination %}
+            <tr>
+                <td>{{ event.id }}</td>
+                <td>{{ event.titre }}</td>
+                <td>{{ event.description }}</td>
+                <td>{{ event.dateHeure|date('d/m/Y H:i') }}</td>
+                <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
+                <td>
+                    <a href="{{ path('event_detail', {id: event.id}) }}" class="btn btn-primary btn-sm">Voir</a>
+                    {% if is_granted('edit', event) %}
+                        <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-secondary btn-sm">Éditer</a>
+                    {% endif %}
+                    {% if is_granted('delete', event) %}
+                        <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                            <button class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="navigation">
+    {{ knp_pagination_render(pagination) }}
+</div>
+
+{% endblock %}
