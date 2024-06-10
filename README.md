@@ -3,6 +3,9 @@ Projet de PHP avec Symphony
 
 
 # Pour installer le projet
+
+
+```sh
 composer install
 bin/console doctrine:database:create
 bin/console doc:sc:up -f
