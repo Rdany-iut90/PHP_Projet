@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\Event;
@@ -16,6 +15,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 class EventController extends AbstractController
 {
     #[Route('/event/create', name: 'event_create')]
+    #[IsGranted('ROLE_USER')]
     public function create(Request $request, EntityManagerInterface $entityManager): Response
     {
         $event = new Event();
@@ -41,16 +41,12 @@ class EventController extends AbstractController
     #[Route('/events', name: 'event_list')]
     public function list(EventRepository $eventRepository, PaginatorInterface $paginator, Request $request): Response
     {
-        $queryBuilder = $eventRepository->createQueryBuilder('e');
+        $queryBuilder = $eventRepository->createQueryBuilder('e')
+                                         ->orderBy('e.dateHeure', 'ASC');
 
-        if ($this->isGranted('ROLE_ADMIN') || $this->isGranted('ROLE_USER')) {
-            // Les utilisateurs connectés peuvent voir tous les événements
-            $queryBuilder->orderBy('e.dateHeure', 'ASC');
-        } else {
-            // Les utilisateurs non connectés ne peuvent voir que les événements publics
+        if (!$this->isGranted('ROLE_USER')) {
             $queryBuilder->where('e.publique = :publique')
-                         ->setParameter('publique', true)
-                         ->orderBy('e.dateHeure', 'ASC');
+                         ->setParameter('publique', true);
         }
 
         $pagination = $paginator->paginate(
@@ -60,14 +56,6 @@ class EventController extends AbstractController
         );
 
         return $this->render('event/list.html.twig', ['pagination' => $pagination]);
-    }
-
-    #[Route('/event/{id}', name: 'event_detail')]
-    public function detail(Event $event): Response
-    {
-        $this->denyAccessUnlessGranted('view', $event);
-
-        return $this->render('event/detail.html.twig', ['event' => $event]);
     }
 
     #[Route('/event/{id}/edit', name: 'event_edit')]
@@ -81,14 +69,14 @@ class EventController extends AbstractController
             $now = new \DateTime();
             if ($event->getDateHeure() <= $now) {
                 $this->addFlash('error', 'La date de l\'événement doit être après la date du jour (' . $now->format('d/m/Y') . ').');
-                return $this->render('event/edit.html.twig', ['form' => $form->createView()]);
+                return $this->render('event/edit.html.twig', ['form' => $form->createView(), 'event' => $event]);
             }
 
             $entityManager->flush();
-            return $this->redirectToRoute('event_detail', ['id' => $event->getId()]);
+            return $this->redirectToRoute('event_list');
         }
 
-        return $this->render('event/edit.html.twig', ['form' => $form->createView()]);
+        return $this->render('event/edit.html.twig', ['form' => $form->createView(), 'event' => $event]);
     }
 
     #[Route('/event/{id}/delete', name: 'event_delete')]

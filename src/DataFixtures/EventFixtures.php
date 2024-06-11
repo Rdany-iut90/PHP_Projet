@@ -16,9 +16,9 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
 
         for ($i = 1; $i <= 5; $i++) {
             $event = new Event();
-            $event->setTitre('Event ' . $i);
-            $event->setDescription('Description for event ' . $i);
-            $event->setDateHeure((new \DateTime())->modify('+'.($i+1).' days'));
+            $event->setTitre('Evenement ' . $i);
+            $event->setDescription('Description de l`evenement ' . $i);
+            $event->setDateHeure((new \DateTime())->modify('+'.($i+1).' jours'));
             $event->setMaxParticipants(10);
             $event->setPublique(true);
             $event->setUser($user);
@@ -29,7 +29,7 @@ class EventFixtures extends Fixture implements DependentFixtureInterface
             $event = new Event();
             $event->setTitre('Event Connected ' . $i);
             $event->setDescription('Description for event Connected ' . $i);
-            $event->setDateHeure((new \DateTime())->modify('+'.($i+1).' days'));
+            $event->setDateHeure((new \DateTime())->modify('+'.($i+1).' jours'));
             $event->setMaxParticipants(1);
             $event->setPublique(false);
             $event->setUser($user);

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Security;
 
 use App\Entity\Event;
@@ -49,7 +48,6 @@ class EventVoter extends Voter
 
     private function canView(Event $event, $user): bool
     {
-        
         return $event->isPublique() || ($user && $user === $event->getUser());
     }
 
