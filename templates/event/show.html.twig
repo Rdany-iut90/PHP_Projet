@@ -25,7 +25,9 @@
 
             <div class="mt-4">
                 {% if app.user %}
-                    {% if event.getParticipants().contains(app.user) %}
+                    {% if not event.getAvailableSpots() %}
+                        <span class="badge badge-danger">Complet</span>
+                    {% elseif event.getParticipants().contains(app.user) %}
                         <a href="{{ path('event_unregister', {id: event.id}) }}" class="btn btn-secondary">Annuler l'inscription</a>
                     {% else %}
                         <a href="{{ path('event_register', {id: event.id}) }}" class="btn btn-primary">S'inscrire</a>
@@ -33,6 +35,7 @@
                 {% else %}
                     <a href="{{ path('app_login') }}" class="btn btn-primary">S'inscrire</a>
                 {% endif %}
+
                 <a href="{{ path('event_list') }}" class="btn btn-secondary">Retour à la liste des événements</a>
             </div>
         </div>

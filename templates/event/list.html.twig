@@ -64,14 +64,14 @@
                         <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
                         <td>{{ event.getParticipants().count }} / {{ event.maxParticipants }}</td>
                         <td>
-                            <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-info btn-sm me-2 mb-2 p-2">Voir</a>
+                            <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-primary btn-sm me-2 mb-2 p-2"><i class="bi bi-eye"></i> Voir</a>
                             {% if is_granted('edit', event) %}
-                                <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2 p-2">Éditer</a>
+                                <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2 p-2"><i class="bi bi-pencil"></i> Éditer</a>
                             {% endif %}
                             {% if is_granted('delete', event) %}
                                 <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
                                     <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
-                                    <button class="btn btn-danger btn-sm me-2 mb-2 p-2">Supprimer</button>
+                                    <button class="btn btn-danger btn-sm me-2 mb-2 p-2"> <i class="bi bi-trash"></i> Supprimer</button>
                                 </form>
                             {% endif %}
                         </td>
