@@ -41,7 +41,7 @@ class SecurityController extends AbstractController
                 $entityManager->flush();
 
                 
-                $this->addFlash('success', 'Registration successful!');
+                $this->addFlash('success', 'Succès de l\'inscription !');
 
                 
                 return $this->redirectToRoute('app_login');
