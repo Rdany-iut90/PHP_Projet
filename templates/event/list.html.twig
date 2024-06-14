@@ -14,40 +14,80 @@
         {% endfor %}
     {% endfor %}
 
-    <table class="table table-hover table-bordered">
-        <thead class="thead-dark">
-            <tr>
-                <th>Titre</th>
-                <th>Description</th>
-                <th>Date et Heure</th>
-                <th>Publique</th>
-                <th>Nb participant</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for event in pagination %}
+    <form method="get" action="{{ path('event_list') }}" class="mb-3">
+        <div class="row">
+            <div class="col-md-3 p-2">
+                <input type="text" name="title" class="form-control" placeholder="Titre de l'événement" value="{{ app.request.get('title') }}">
+            </div>
+            {% if app.user %}
+                <div class="col-md-3 p-2">
+                    <select name="publique" class="form-control">
+                        <option value="">Tous</option>
+                        <option value="1" {% if app.request.get('publique') == '1' %}selected{% endif %}>Publique</option>
+                        <option value="0" {% if app.request.get('publique') == '0' %}selected{% endif %}>Privé</option>
+                    </select>
+                </div>
+            {% endif %}
+            <div class="col-md-3 p-2">
+                <input type="date" name="date" class="form-control" placeholder="Date" value="{{ app.request.get('date') }}">
+            </div>
+            <div class="col-md-3 p-2">
+                <input type="number" name="participants_min" class="form-control" placeholder="Participants min" value="{{ app.request.get('participants_min') }}">
+            </div>
+            <div class="col-md-3 p-2">
+                <input type="number" name="participants_max" class="form-control" placeholder="Participants max" value="{{ app.request.get('participants_max') }}">
+            </div>
+            <div class="col-md-3 p-2">
+                <button type="submit" class="btn btn-primary p-2">Filtrer</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered shadow-sm rounded-3">
+            <thead class="thead-dark">
                 <tr>
-                    <td>{{ event.titre }}</td>
-                    <td>{{ event.description }}</td>
-                    <td>{{ event.dateHeure|date('d/m/Y H:i') }}</td>
-                    <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
-                    <td>{{ event.maxParticipants }}</td>
-                    <td>
-                        {% if is_granted('edit', event) %}
-                            <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm">Éditer</a>
-                        {% endif %}
-                        {% if is_granted('delete', event) %}
-                            <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
-                                <button class="btn btn-danger btn-sm">Supprimer</button>
-                            </form>
-                        {% endif %}
-                    </td>
+                    <th style="width: 15%;">Titre</th>
+                    <th style="width: 20%;">Description</th>
+                    <th style="width: 15%;">Date de l'evenement</th>
+                    <th style="width: 10%;">Publique</th>
+                    <th style="width: 10%;">Participants</th>
+                    <th style="width: 30%;">Actions</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for event in pagination %}
+                    <tr>
+                        <td>{{ event.titre }}</td>
+                        <td>{{ event.description }}</td>
+                        <td>{{ event.dateHeure|date('d/m/Y H:i') }}</td>
+                        <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
+                        <td>{{ event.getParticipants().count }} / {{ event.maxParticipants }}</td>
+                        <td>
+                            {% if app.user %}
+                                {% if event.getParticipants().contains(app.user) %}
+                                    <a href="{{ path('event_unregister', {id: event.id}) }}" class="btn btn-secondary btn-sm me-2 mb-2 p-2">Annuler l'inscription</a>
+                                {% else %}
+                                    <a href="{{ path('event_register', {id: event.id}) }}" class="btn btn-primary btn-sm me-2 mb-2 p-2">S'inscrire</a>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn btn-primary btn-sm me-2 mb-2 p-2">S'inscrire</a>
+                            {% endif %}
+                            {% if is_granted('edit', event) %}
+                                <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2 p-2">Éditer</a>
+                            {% endif %}
+                            {% if is_granted('delete', event) %}
+                                <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                    <button class="btn btn-danger btn-sm me-2 mb-2 p-2">Supprimer</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <div class="d-flex justify-content-center">
         {{ knp_pagination_render(pagination) }}

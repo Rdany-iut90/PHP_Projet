@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Repository\EventRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: EventRepository::class)]
 class Event
@@ -31,6 +33,10 @@ class Event
     #[ORM\ManyToOne(targetEntity: User::class, inversedBy: 'events')]
     #[ORM\JoinColumn(nullable: false)]
     private $user;
+
+
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'registeredEvents')]
+    private $participants;
 
    
 
@@ -117,6 +123,38 @@ class Event
         return $this->titre;
     }
 
+    public function __construct()
+    {
+        $this->participants = new ArrayCollection();
+    }
+
+    public function getParticipants(): Collection
+    {
+        return $this->participants;
+    }
+
+    public function addParticipant(User $user): self
+    {
+        if (!$this->participants->contains($user)) {
+            $this->participants->add($user);
+        }
+
+        return $this;
+    }
+
+    public function removeParticipant(User $user): self
+    {
+        $this->participants->removeElement($user);
+
+        return $this;
+    }
+
+    public function getAvailableSpots(): int
+    {
+        return $this->maxParticipants - $this->participants->count();
+    }
+}
+
 
    
-}
+

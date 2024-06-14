@@ -32,6 +32,8 @@ security:
         target: /
 
   access_control:
+    - { path: ^/logout, roles: ROLE_USER }
     - { path: ^/admin, roles: ROLE_ADMIN }
     - { path: ^/profile, roles: ROLE_USER }
     - { path: ^/event/create, roles: ROLE_USER }
+    - { path: ^/my-events, roles: ROLE_USER }

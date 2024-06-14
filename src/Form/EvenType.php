@@ -30,7 +30,14 @@ class EventType extends AbstractType
                     new Assert\NotBlank(['message' => 'Veuillez entrer une date et une heure.']),
                 ],
             ])
-            ->add('maxParticipants', IntegerType::class)
+            ->add('maxParticipants', IntegerType::class, [
+                'constraints' => [
+                    new Assert\GreaterThan([
+                        'value' => 0,
+                        'message' => 'Le nombre maximum de participants doit être supérieur à 0.',
+                    ]),
+                ],
+            ])
             ->add('publique', CheckboxType::class, [
                 'required' => false
             ]);

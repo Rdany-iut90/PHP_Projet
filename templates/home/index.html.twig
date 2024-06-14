@@ -3,17 +3,21 @@
 {% block title %}Accueil{% endblock %}
 
 {% block body %}
-    <div class="mt-5">
+    <div class="container mt-5">
         <h1 class="mb-4">Événements Disponibles</h1>
-        <div class="card">
-            <div class="card-body">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
                 <ul class="list-group list-group-flush">
                     {% for event in events %}
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span>{{ event.titre }}</span>
-                            <span> {{ event.description }}</span>
-                            <span class="badge bg-primary">{{ event.dateHeure|date('d-m-Y H:i') }}</span>
-                            
+                        <li class="list-group-item border-0 d-flex justify-content-between align-items-center p-3">
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold">{{ event.titre }}</span>
+                                <small class="text-muted">{{ event.description }}</small>
+                            </div>
+                            <span class="d-flex align-items-center">
+                                <i class="bi bi-calendar-event me-2"></i>
+                                <span class="badge bg-primary text-white rounded-pill">{{ event.dateHeure|date('d-m-Y H:i') }}</span>
+                            </span>
                         </li>
                     {% endfor %}
                 </ul>
