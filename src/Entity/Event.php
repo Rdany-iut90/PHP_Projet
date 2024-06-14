@@ -153,8 +153,40 @@ class Event
     {
         return $this->maxParticipants - $this->participants->count();
     }
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isPaid;
+
+    /**
+     * @ORM\Column(type="decimal", scale=2, nullable=true)
+     */
+    private $cost;
+
+    public function getIsPaid(): ?bool
+    {
+        return $this->isPaid;
+    }
+
+    public function setIsPaid(bool $isPaid): self
+    {
+        $this->isPaid = $isPaid;
+
+        return $this;
+    }
+
+    public function getCost(): ?string
+    {
+        return $this->cost;
+    }
+
+    public function setCost(?string $cost): self
+    {
+        $this->cost = $cost;
+
+        return $this;
+    }
 }
-
-
    
 

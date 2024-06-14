@@ -1,0 +1,14 @@
+{# templates/payment/success.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement Réussi{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="alert alert-success mt-5">
+        <h1>Paiement Réussi</h1>
+        <p>Votre paiement a été effectué avec succès. Vous êtes maintenant inscrit à l'événement.</p>
+        <a href="{{ path('event_list') }}" class="btn btn-primary">Retour à la liste des événements</a>
+    </div>
+</div>
+{% endblock %}

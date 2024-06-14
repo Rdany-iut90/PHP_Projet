@@ -84,7 +84,10 @@ class EventController extends AbstractController
             $now = new \DateTime();
             if ($event->getDateHeure() <= $now) {
                 $this->addFlash('error', 'La date de l\'événement doit être après la date du jour (' . $now->format('d/m/Y') . ').');
-                return $this->render('event/create.html.twig', ['form' => $form->createView()]);
+                return $this->render('event/create.html.twig', [
+                    'form' => $form->createView(),
+                    'stripe_public_key' => $this->getParameter('stripe.public_key')
+                ]);
             }
 
             $event->setUser($this->getUser());
@@ -93,7 +96,10 @@ class EventController extends AbstractController
             return $this->redirectToRoute('event_list');
         }
 
-        return $this->render('event/create.html.twig', ['form' => $form->createView()]);
+        return $this->render('event/create.html.twig', [
+            'form' => $form->createView(),
+            'stripe_public_key' => $this->getParameter('stripe.public_key')
+        ]);
     }
 
     #[Route('/event/{id}/edit', name: 'event_edit')]
@@ -136,26 +142,29 @@ class EventController extends AbstractController
     {
         $user = $this->getUser();
         $availableSpots = $this->eventService->getAvailableSpots($event);
-
+    
         if ($availableSpots <= 0) {
             $this->addFlash('error', 'L\'événement est complet vous ne pouvez plus vous inscrire.');
+            return $this->redirectToRoute('event_list');
         } elseif ($event->getParticipants()->contains($user)) {
             $this->addFlash('error', 'Vous êtes déjà inscrit à cet événement.');
+            return $this->redirectToRoute('event_list');
+        } elseif ($event->getIsPaid()) {
+            return $this->redirectToRoute('create_checkout_session', ['eventId' => $event->getId()]);
         } else {
             $event->addParticipant($user);
             $entityManager->flush();
-
+    
             $this->addFlash('success', 'Vous êtes inscrit à l\'événement.');
-
-            // Envoi de l'email de notification
+    
             $this->notificationService->sendEmail(
                 $user->getEmail(),
                 'Inscription à l\'événement',
                 'Vous êtes inscrit à l\'événement ' . $event->getTitre() . ' qui aura lieu le ' . $event->getDateHeure()->format('d/m/Y H:i') . '.'
             );
+    
+            return $this->redirectToRoute('event_list');
         }
-
-        return $this->redirectToRoute('event_list');
     }
 
     #[Route('/event/{id}/unregister', name: 'event_unregister')]
@@ -180,6 +189,77 @@ class EventController extends AbstractController
             );
         }
 
+        return $this->redirectToRoute('event_list');
+    }
+
+    #[Route('/event/{id}/payment', name: 'event_payment')]
+    #[IsGranted('ROLE_USER')]
+    public function payment(Event $event, EntityManagerInterface $entityManager): Response
+    {
+        $user = $this->getUser();
+        Stripe::setApiKey($this->getParameter('stripe.secret_key'));
+
+        $session = Session::create([
+            'payment_method_types' => ['card'],
+            'line_items' => [[
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $event->getTitre(),
+                    ],
+                    'unit_amount' => $event->getCost() * 100,
+                ],
+                'quantity' => 1,
+            ]],
+            'mode' => 'payment',
+            'success_url' => $this->generateUrl('payment_success', ['eventId' => $event->getId(), 'userId' => $user->getId()], true),
+            'cancel_url' => $this->generateUrl('payment_cancel', [], true),
+        ]);
+
+        return $this->render('payment/payment.html.twig', [
+            'stripe_public_key' => $this->getParameter('stripe.public_key'),
+            'session_id' => $session->id,
+        ]);
+    }
+
+    #[Route('/payment/success', name: 'payment_success')]
+    public function paymentSuccess(Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $eventId = $request->query->get('eventId');
+        $userId = $request->query->get('userId');
+    
+        $event = $entityManager->getRepository(Event::class)->find($eventId);
+        $user = $entityManager->getRepository(User::class)->find($userId);
+    
+        if ($event && $user) {
+            $event->addParticipant($user);
+    
+            $payment = new Payment();
+            $payment->setUser($user);
+            $payment->setEvent($event);
+            $payment->setStatus('paid');
+            $entityManager->persist($payment);
+            $entityManager->flush();
+    
+            $this->addFlash('success', 'Paiement réussi. Vous êtes inscrit à l\'événement.');
+    
+            $this->notificationService->sendEmail(
+                $user->getEmail(),
+                'Inscription à l\'événement',
+                'Vous êtes inscrit à l\'événement ' . $event->getTitre() . ' qui aura lieu le ' . $event->getDateHeure()->format('d/m/Y H:i') . '.'
+            );
+    
+            return $this->redirectToRoute('event_list');
+        }
+    
+        $this->addFlash('error', 'Erreur lors de l\'inscription à l\'événement.');
+        return $this->redirectToRoute('event_list');
+    }
+    
+    #[Route('/payment/cancel', name: 'payment_cancel')]
+    public function paymentCancel(): Response
+    {
+        $this->addFlash('error', 'Paiement annulé.');
         return $this->redirectToRoute('event_list');
     }
 

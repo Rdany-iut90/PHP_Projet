@@ -49,9 +49,67 @@
                     </div>
                 </div>
             </div>
+            <div class="form-group row">
+                <div class="col-sm-2">{{ form_label(form.isPaid, null, {'label_attr': {'class': 'form-check-label'}}) }}</div>
+                <div class="col-sm-10">
+                    <div class="form-check">
+                        {{ form_widget(form.isPaid, {'attr': {'class': 'form-check-input'}}) }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row" id="cost-field" style="display: none;">
+                {{ form_label(form.cost, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
+                <div class="col-sm-10">
+                    {{ form_widget(form.cost, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.cost) }}
+                </div>
+            </div>
             <button type="submit" class="btn btn-primary">Créer</button>
             {{ form_end(form) }}
         </div>
     </div>
 </div>
+
+{% if form.vars.value.isPaid %}
+    <button id="checkout-button">Pay Now</button>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script type="text/javascript">
+        var stripe = Stripe('{{ stripe_public_key }}');
+        document.getElementById('checkout-button').addEventListener('click', function () {
+            fetch('/create-checkout-session/{{ form.vars.value.id }}', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(session => {
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .then(function (result) {
+                if (result.error) {
+                    alert(result.error.message);
+                }
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+{% endif %}
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var isPaidCheckbox = document.getElementById('event_isPaid');
+        var costField = document.getElementById('cost-field');
+        
+        function toggleCostField() {
+            if (isPaidCheckbox.checked) {
+                costField.style.display = 'block';
+            } else {
+                costField.style.display = 'none';
+            }
+        }
+        
+        isPaidCheckbox.addEventListener('change', toggleCostField);
+        toggleCostField(); // initial check
+    });
+</script>
 {% endblock %}

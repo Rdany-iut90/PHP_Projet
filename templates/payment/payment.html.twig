@@ -1,0 +1,18 @@
+{# templates/payment/payment.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement{% endblock %}
+
+{% block body %}
+<h1>Paiement pour l'événement {{ event.titre }}</h1>
+
+<button id="checkout-button">Payer maintenant</button>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+    var stripe = Stripe('{{ stripe_public_key }}');
+    document.getElementById('checkout-button').addEventListener('click', function () {
+        stripe.redirectToCheckout({ sessionId: '{{ session_id }}' });
+    });
+</script>
+{% endblock %}

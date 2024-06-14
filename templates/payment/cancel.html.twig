@@ -1,0 +1,14 @@
+{# templates/payment/cancel.html.twig #}
+{% extends 'base.html.twig' %}
+
+{% block title %}Paiement Annulé{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="alert alert-warning mt-5">
+        <h1>Paiement Annulé</h1>
+        <p>Votre paiement a été annulé. Vous pouvez réessayer ou contacter le support si vous avez des questions.</p>
+        <a href="{{ path('event_list') }}" class="btn btn-primary">Retour à la liste des événements</a>
+    </div>
+</div>
+{% endblock %}
