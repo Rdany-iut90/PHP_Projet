@@ -64,15 +64,7 @@
                         <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
                         <td>{{ event.getParticipants().count }} / {{ event.maxParticipants }}</td>
                         <td>
-                            {% if app.user %}
-                                {% if event.getParticipants().contains(app.user) %}
-                                    <a href="{{ path('event_unregister', {id: event.id}) }}" class="btn btn-secondary btn-sm me-2 mb-2 p-2">Annuler l'inscription</a>
-                                {% else %}
-                                    <a href="{{ path('event_register', {id: event.id}) }}" class="btn btn-primary btn-sm me-2 mb-2 p-2">S'inscrire</a>
-                                {% endif %}
-                            {% else %}
-                                <a href="{{ path('app_login') }}" class="btn btn-primary btn-sm me-2 mb-2 p-2">S'inscrire</a>
-                            {% endif %}
+                            <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-info btn-sm me-2 mb-2 p-2">Voir</a>
                             {% if is_granted('edit', event) %}
                                 <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2 p-2">Éditer</a>
                             {% endif %}

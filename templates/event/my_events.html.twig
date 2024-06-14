@@ -36,16 +36,14 @@
                     <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
                     <td>{{ event.getParticipants().count }} / {{ event.maxParticipants }}</td>
                     <td>
-                        {% if is_granted('edit', event) %}
-                            <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2">Éditer</a>
-                        {% endif %}
+                        <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-primary btn-sm me-2 mb-2">Voir</a>
                         {% if is_granted('delete', event) %}
                             <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
                                 <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
                                 <button class="btn btn-danger btn-sm me-2 mb-2">Supprimer</button>
                             </form>
                         {% endif %}
-                        <a href="{{ path('event_unregister', {id: event.id}) }}" class="btn btn-secondary btn-sm me-2 mb-2">Annuler l'inscription</a>
+                       
                     </td>
                 </tr>
             {% endfor %}

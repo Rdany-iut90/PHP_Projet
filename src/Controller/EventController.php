@@ -96,6 +96,12 @@ class EventController extends AbstractController
         return $this->render('event/create.html.twig', ['form' => $form->createView()]);
     }
 
+     #[Route('/event/{id}', name: 'event_show')]
+    public function show(Event $event): Response
+    {
+        return $this->render('event/show.html.twig', ['event' => $event]);
+    }
+
     #[Route('/event/{id}/edit', name: 'event_edit')]
     #[IsGranted('edit', subject: 'event')]
     public function edit(Request $request, Event $event, EntityManagerInterface $entityManager): Response
