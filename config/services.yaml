@@ -24,3 +24,10 @@ services:
   # please note that last definitions always *replace* previous ones
   App\Service\EventService:
     arguments: []
+
+  App\Service\NotificationService:
+    arguments: []
+
+  App\Security\Voter\UserProfileVoter:
+    tags:
+      - { name: security.voter }

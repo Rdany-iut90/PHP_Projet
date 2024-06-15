@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de l'événement{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-dark text-white">
+            <h1>{{ event.titre }}</h1>
+        </div>
+        <div class="card-body">
+            <p class="card-text"><strong>Description:</strong> {{ event.description }}</p>
+            <p class="card-text"><strong>Date:</strong> {{ event.dateHeure|date('d/m/Y H:i') }}</p>
+            <p class="card-text"><strong>Publique:</strong> {{ event.publique ? 'Oui' : 'Non' }}</p>
+            <p class="card-text"><strong>Créateur:</strong> {{ event.user.username }}</p>
+            <p class="card-text">
+                <strong>Participants:</strong> 
+                {% set remaining_spots = event.maxParticipants - event.getParticipants().count %}
+                {% if remaining_spots > 0 %}
+                    <span class="badge badge-success">{{ remaining_spots }} places restantes</span>
+                {% else %}
+                    <span class="badge badge-danger">Complet</span>
+                {% endif %}
+            </p>
+
+            <div class="mt-4">
+                {% if app.user %}
+                    {% if not event.getAvailableSpots() %}
+                        <span class="badge badge-danger">Complet</span>
+                    {% elseif event.getParticipants().contains(app.user) %}
+                        <a href="{{ path('event_unregister', {id: event.id}) }}" class="btn btn-secondary">Annuler l'inscription</a>
+                    {% else %}
+                        <a href="{{ path('event_register', {id: event.id}) }}" class="btn btn-primary">S'inscrire</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{{ path('app_login') }}" class="btn btn-primary">S'inscrire</a>
+                {% endif %}
+
+                <a href="{{ path('event_list') }}" class="btn btn-secondary">Retour à la liste des événements</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

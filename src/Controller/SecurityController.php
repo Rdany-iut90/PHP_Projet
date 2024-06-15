@@ -36,7 +36,10 @@ class SecurityController extends AbstractController
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                $this->addFlash('success', 'Registration successful!');
+                
+                $this->addFlash('success', 'Succès de l\'inscription !');
+
+                
                 return $this->redirectToRoute('app_login');
             } catch (UniqueConstraintViolationException $e) {
                 $this->addFlash('error', 'L\'email est déjà utilisé.');
