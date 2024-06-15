@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Payment Canceled{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-warning text-white">
+            <h1 class="card-title">Payment Canceled</h1>
+        </div>
+        <div class="card-body">
+            <p class="card-text">Your payment for the event <strong>{{ event.titre }}</strong> was canceled.</p>
+            <a href="{{ path('event_show', {'id': event.id}) }}" class="btn btn-primary">Back to Event</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h1 class="card-title">Checkout</h1>
+        </div>
+        <div class="card-body text-center">
+            <p class="card-text">You are about to pay for the event <strong>{{ event.titre }}</strong>.</p>
+            <script src="https://js.stripe.com/v3/"></script>
+            <button id="checkout-button" class="btn btn-success">Pay</button>
+            <script type="text/javascript">
+                var stripe = Stripe('{{ publicKey }}');
+                var checkoutButton = document.getElementById('checkout-button');
+
+                checkoutButton.addEventListener('click', function () {
+                    stripe.redirectToCheckout({
+                        sessionId: '{{ sessionId }}'
+                    }).then(function (result) {
+                        if (result.error) {
+                            alert(result.error.message);
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}

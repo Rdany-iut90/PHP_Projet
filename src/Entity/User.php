@@ -49,7 +49,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Event::class, mappedBy: 'participants')]
     private $registeredEvents;
 
-   
+    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'user')]
+    private Collection $payments;
+
+    public function __construct()
+    {
+        $this->registeredEvents = new ArrayCollection();
+        $this->payments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -64,7 +71,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -76,7 +82,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setNom(string $nom): self
     {
         $this->nom = $nom;
-
         return $this;
     }
 
@@ -88,7 +93,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPrenom(string $prenom): self
     {
         $this->prenom = $prenom;
-
         return $this;
     }
 
@@ -100,7 +104,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): self
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -108,14 +111,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
         $roles[] = 'ROLE_USER';
-
         return array_unique($roles);
     }
 
     public function setRoles(array $roles): self
     {
         $this->roles = $roles;
-
         return $this;
     }
 
@@ -133,11 +134,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->email;
     }
 
-     public function __construct()
-    {
-        $this->registeredEvents = new ArrayCollection();
-    }
-
     public function getRegisteredEvents(): Collection
     {
         return $this->registeredEvents;
@@ -149,7 +145,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
             $this->registeredEvents->add($event);
             $event->addParticipant($this);
         }
-
         return $this;
     }
 
@@ -158,8 +153,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         if ($this->registeredEvents->removeElement($event)) {
             $event->removeParticipant($this);
         }
+        return $this;
+    }
 
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): static
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setUser($this);
+        }
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): static
+    {
+        if ($this->payments->removeElement($payment)) {
+            if ($payment->getUser() === $this) {
+                $payment->setUser(null);
+            }
+        }
         return $this;
     }
 }
-

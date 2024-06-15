@@ -34,11 +34,25 @@ class Event
     #[ORM\JoinColumn(nullable: false)]
     private $user;
 
-
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'registeredEvents')]
     private $participants;
 
-   
+    #[ORM\Column(type: 'boolean')]
+    private $isPaid = false;
+
+    #[ORM\Column(type: 'decimal', scale: 2, nullable: true)]
+    private $cost;
+
+    #[ORM\OneToMany(targetEntity: Payment::class, mappedBy: 'event')]
+    private $payments;
+
+    public function __construct()
+    {
+        $this->participants = new ArrayCollection();
+        $this->payments = new ArrayCollection();
+    }
+
+    // Getters and setters for the properties
 
     public function getId(): ?int
     {
@@ -56,7 +70,6 @@ class Event
 
         return $this;
     }
-
 
     public function getDescription(): ?string
     {
@@ -118,14 +131,28 @@ class Event
         return $this;
     }
 
-    public function __toString()
+    public function getIsPaid(): bool
     {
-        return $this->titre;
+        return $this->isPaid;
     }
 
-    public function __construct()
+    public function setIsPaid(bool $isPaid): self
     {
-        $this->participants = new ArrayCollection();
+        $this->isPaid = $isPaid;
+
+        return $this;
+    }
+
+    public function getCost(): ?float
+    {
+        return $this->cost;
+    }
+
+    public function setCost(?float $cost): self
+    {
+        $this->cost = $cost;
+
+        return $this;
     }
 
     public function getParticipants(): Collection
@@ -153,8 +180,31 @@ class Event
     {
         return $this->maxParticipants - $this->participants->count();
     }
+
+    public function getPayments(): Collection
+    {
+        return $this->payments;
+    }
+
+    public function addPayment(Payment $payment): self
+    {
+        if (!$this->payments->contains($payment)) {
+            $this->payments->add($payment);
+            $payment->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removePayment(Payment $payment): self
+    {
+        if ($this->payments->removeElement($payment)) {
+            // set the owning side to null (unless already changed)
+            if ($payment->getEvent() === $this) {
+                $payment->setEvent(null);
+            }
+        }
+
+        return $this;
+    }
 }
-
-
-   
-
