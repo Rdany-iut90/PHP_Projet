@@ -38,7 +38,7 @@
                 {{ form_label(form.maxParticipants, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
                 <div class="col-sm-10">
                     {{ form_widget(form.maxParticipants, {'attr': {'class': 'form-control'}}) }}
-                    {{ form_errors(form.maxParticipants)}}
+                    {{ form_errors(form.maxParticipants) }}
                 </div>
             </div>
             <div class="form-group row">
@@ -53,14 +53,15 @@
                 <div class="col-sm-2">{{ form_label(form.isPaid, null, {'label_attr': {'class': 'form-check-label'}}) }}</div>
                 <div class="col-sm-10">
                     <div class="form-check">
-                        {{ form_widget(form.isPaid, {'attr': {'class': 'form-check-input'}}) }}
+                        {{ form_widget(form.isPaid, {'attr': {'class': 'form-check-input', 'id': 'event_isPaid'}}) }}
                     </div>
                 </div>
             </div>
-            <div class="form-group row">
-                {{ form_label(form.cost, null, {'label_attr': {'class': 'col-sm-2 col-form-label'}}) }}
+            <div class="form-group row" id="cost-field" style="display: none;">
+                {{ form_label(form.cost, null, {'label_attr': {'class': 'col-sm-2 col-form-label', 'style': 'display:inline-block'}}) }}
                 <div class="col-sm-10">
                     {{ form_widget(form.cost, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.cost) }}
                 </div>
             </div>
             <button type="submit" class="btn btn-primary">Créer</button>
@@ -68,4 +69,26 @@
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+
+        var isPaidCheckbox = document.getElementById('event_isPaid');
+        var costField = document.getElementById('cost-field');
+        
+        console.log('Page loaded. isPaidCheckbox:', isPaidCheckbox, 'costField:', costField);
+
+        function toggleCostField() {
+            if (isPaidCheckbox.checked) {
+                costField.style.display = 'block';
+            } else {
+                costField.style.display = 'none';
+            }
+        }
+
+        isPaidCheckbox.addEventListener('change', toggleCostField);
+        toggleCostField();
+    });
+</script>
+
 {% endblock %}

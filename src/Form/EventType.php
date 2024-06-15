@@ -43,7 +43,7 @@ class EventType extends AbstractType
                 'required' => false
             ])
             ->add('isPaid', CheckboxType::class, [
-                'label' => 'Paid Event',
+                'label' => 'Payant',
                 'required' => false,
             ])
             ->add('cost', MoneyType::class, [

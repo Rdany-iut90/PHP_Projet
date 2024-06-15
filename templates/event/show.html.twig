@@ -23,7 +23,7 @@
                 {% endif %}
             </p>
             <p class="card-text"><strong>Payant:</strong> {{ event.isPaid ? 'Oui' : 'Non' }}</p>
-            <p class="card-text" v-if="event.isPaid"><strong>Coût:</strong> {{ event.cost }} $</p>
+            <p class="card-text"><strong>Coût:</strong> {{ event.isPaid ? event.cost ~ ' $' : '0 $' }}</p>
 
             <div class="mt-4">
                 {% if app.user %}
@@ -36,7 +36,7 @@
                             {% if hasPaid %}
                                 <span class="badge badge-success">Vous avez payé pour cet événement.</span>
                             {% else %}
-                                <a href="{{ path('event_register_and_pay', {id: event.id}) }}" class="btn btn-primary">Payer et S'inscrire</a>
+                                <a href="{{ path('event_register_and_pay', {id: event.id}) }}" class="btn btn-primary">Payer et s'inscrire</a>
                             {% endif %}
                         {% else %}
                             <a href="{{ path('event_register', {id: event.id}) }}" class="btn btn-primary">S'inscrire</a>
