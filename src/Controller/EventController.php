@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Event;
+use App\Entity\Payment;
 use App\Form\EventType;
 use App\Repository\EventRepository;
+use App\Repository\PaymentRepository;
 use App\Service\EventService;
 use App\Service\NotificationService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -96,10 +98,47 @@ class EventController extends AbstractController
         return $this->render('event/create.html.twig', ['form' => $form->createView()]);
     }
 
-     #[Route('/event/{id}', name: 'event_show')]
-    public function show(Event $event): Response
+    #[Route('/event/{id}', name: 'event_show')]
+    public function show(Event $event, PaymentRepository $paymentRepository): Response
     {
-        return $this->render('event/show.html.twig', ['event' => $event]);
+        $user = $this->getUser();
+
+        $hasPaid = false;
+        if ($user) {
+            $hasPaid = $this->hasPaid($user, $event, $paymentRepository);
+        }
+
+        return $this->render('event/show.html.twig', [
+            'event' => $event,
+            'hasPaid' => $hasPaid
+        ]);
+    }
+
+    #[Route('/event/{id}/register_and_pay', name: 'event_register_and_pay')]
+    #[IsGranted('ROLE_USER')]
+    public function registerAndPay(Event $event): Response
+    {
+        $user = $this->getUser();
+    
+        // Vérifier si l'utilisateur est déjà inscrit
+        if ($event->getParticipants()->contains($user)) {
+            $this->addFlash('error', 'Vous êtes déjà inscrit à cet événement.');
+            return $this->redirectToRoute('event_list');
+        }
+    
+        // Rediriger vers la page de paiement
+        return $this->redirectToRoute('payment', ['id' => $event->getId()]);
+    }
+
+    private function hasPaid($user, Event $event, PaymentRepository $paymentRepository): bool
+    {
+        $payment = $paymentRepository->findOneBy([
+            'user' => $user,
+            'event' => $event,
+            'status' => 'succeeded'
+        ]);
+
+        return $payment !== null;
     }
 
     #[Route('/event/{id}/edit', name: 'event_edit')]
@@ -166,18 +205,30 @@ class EventController extends AbstractController
 
     #[Route('/event/{id}/unregister', name: 'event_unregister')]
     #[IsGranted('ROLE_USER')]
-    public function unregister(Event $event, EntityManagerInterface $entityManager): Response
+    public function unregister(Event $event, EntityManagerInterface $entityManager, PaymentRepository $paymentRepository): Response
     {
         $user = $this->getUser();
-
+    
         if (!$event->getParticipants()->contains($user)) {
             $this->addFlash('error', 'Vous n\'êtes pas inscrit à cet événement.');
         } else {
             $event->removeParticipant($user);
+    
+            // Supprimer l'enregistrement de paiement associé
+            $payment = $paymentRepository->findOneBy([
+                'user' => $user,
+                'event' => $event,
+                'status' => 'succeeded'
+            ]);
+    
+            if ($payment) {
+                $entityManager->remove($payment);
+            }
+    
             $entityManager->flush();
-
+    
             $this->addFlash('success', 'Votre inscription a été annulée.');
-
+    
             // Envoi de l'email de notification
             $this->notificationService->sendEmail(
                 $user->getEmail(),
@@ -185,9 +236,10 @@ class EventController extends AbstractController
                 'Votre inscription à l\'événement ' . $event->getTitre() . ' qui aura lieu le ' . $event->getDateHeure()->format('d/m/Y H:i') . ' a été annulée.'
             );
         }
-
+    
         return $this->redirectToRoute('event_list');
     }
+    
 
     #[Route('/my-events', name: 'my_event_list')]
     #[IsGranted('ROLE_USER')]

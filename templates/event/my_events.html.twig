@@ -1,5 +1,3 @@
-
-
 {% extends 'base.html.twig' %}
 
 {% block title %}Mes événements{% endblock %}
@@ -24,7 +22,8 @@
                 <th style="width: 15%;">Date de l'événement</th>
                 <th style="width: 10%;">Publique</th>
                 <th style="width: 10%;">Participants</th>
-                <th style="width: 30%;">Actions</th>
+                <th style="width: 10%;">Payant</th>
+                <th style="width: 20%;">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -35,17 +34,18 @@
                     <td>{{ event.dateHeure|date('d/m/Y H:i') }}</td>
                     <td>{{ event.publique ? 'Oui' : 'Non' }}</td>
                     <td>{{ event.getParticipants().count }} / {{ event.maxParticipants }}</td>
+                    <td>{{ event.isPaid ? 'Oui' : 'Non' }}</td>
                     <td>
                          <a href="{{ path('event_show', {id: event.id}) }}" class="btn btn-primary btn-sm me-2 mb-2 p-2"><i class="bi bi-eye"></i> Voir</a>
-                            {% if is_granted('edit', event) %}
-                                <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2 p-2"><i class="bi bi-pencil"></i> Éditer</a>
-                            {% endif %}
-                            {% if is_granted('delete', event) %}
-                                <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
-                                    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
-                                    <button class="btn btn-danger btn-sm me-2 mb-2 p-2"> <i class="bi bi-trash"></i> Supprimer</button>
-                                </form>
-                            {% endif %}
+                        {% if is_granted('edit', event) %}
+                            <a href="{{ path('event_edit', {id: event.id}) }}" class="btn btn-warning btn-sm me-2 mb-2 p-2"><i class="bi bi-pencil"></i> Éditer</a>
+                        {% endif %}
+                        {% if is_granted('delete', event) %}
+                            <form method="post" action="{{ path('event_delete', {id: event.id}) }}" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet événement ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ event.id) }}">
+                                <button class="btn btn-danger btn-sm me-2 mb-2 p-2"> <i class="bi bi-trash"></i> Supprimer</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

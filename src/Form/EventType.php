@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Event;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -40,6 +41,14 @@ class EventType extends AbstractType
             ])
             ->add('publique', CheckboxType::class, [
                 'required' => false
+            ])
+            ->add('isPaid', CheckboxType::class, [
+                'label' => 'Paid Event',
+                'required' => false,
+            ])
+            ->add('cost', MoneyType::class, [
+                'currency' => 'USD',
+                'required' => false,
             ]);
     }
 
