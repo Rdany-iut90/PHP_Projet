@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controller;
 
 use App\Entity\User;
@@ -24,7 +23,6 @@ class SecurityController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-          
             $user->setPassword(
                 $passwordHasher->hashPassword(
                     $user,
@@ -32,22 +30,18 @@ class SecurityController extends AbstractController
                 )
             );
 
-            
             $user->setRoles(['ROLE_USER']);
 
             try {
-               
                 $entityManager->persist($user);
                 $entityManager->flush();
 
-                
                 $this->addFlash('success', 'Registration successful!');
-
-                
                 return $this->redirectToRoute('app_login');
             } catch (UniqueConstraintViolationException $e) {
-               
                 $this->addFlash('error', 'L\'email est déjà utilisé.');
+            } catch (\Exception $e) {
+                $this->addFlash('error', 'Une erreur est survenue lors de l\'enregistrement.');
             }
         }
 
@@ -59,29 +53,26 @@ class SecurityController extends AbstractController
     #[Route(path: '/login', name: 'app_login')]
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
-       
         $error = $authenticationUtils->getLastAuthenticationError();
-        
         $errorMessage = null;
+
         if ($error instanceof BadCredentialsException) {
             $errorMessage = 'Email ou mot de passe incorrect.';
         } else {
             $errorMessage = $error ? $error->getMessage() : null;
         }
 
-        
         $lastUsername = $authenticationUtils->getLastUsername();
-        
+
         return $this->render('security/login.html.twig', [
             'last_username' => $lastUsername,
             'error' => $errorMessage,
-            
         ]);
     }
 
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-       
+        
     }
 }

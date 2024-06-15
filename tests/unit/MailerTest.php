@@ -5,10 +5,13 @@ use PHPUnit\Framework\TestCase;
 use App\Service\NotificationService;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class MailerTest extends TestCase
 {
+    private $mailer;
+    private NotificationService $notificationService;
+
     protected function setUp(): void
     {
         $this->mailer = $this->createMock(MailerInterface::class);
@@ -30,7 +33,8 @@ class MailerTest extends TestCase
     {
         $this->mailer->expects($this->once())
             ->method('send')
-            ->with($this->isInstanceOf(Email::class));
+            ->with($this->isInstanceOf(Email::class))
+            ->willThrowException(new TransportException());
 
         $result = $this->notificationService->sendEmail('test@example.com', 'Test Subject', 'Test Content');
 

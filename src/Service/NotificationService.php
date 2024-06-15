@@ -3,7 +3,7 @@ namespace App\Service;
 
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
-use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\Exception\TransportException;
 
 class NotificationService
 {
@@ -26,7 +26,7 @@ class NotificationService
 
                 $this->mailer->send($email);
                 return 1;
-            } catch (TransportExceptionInterface $e) {
+            } catch (TransportException $e) {
                 return -1;
             }
     }

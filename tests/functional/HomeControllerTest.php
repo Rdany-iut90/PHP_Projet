@@ -23,16 +23,7 @@ class HomeControllerTest extends WebTestCase
         $this->entityManager = $client->getContainer()->get('doctrine')->getManager();
         
         // Create a user and persist it
-        $user = new User();
-        $user->setNom('Test');
-        $user->setPrenom('User');
-        $user->setEmail('test@example.com');
-        $user->setRoles(['ROLE_USER']);
-        $hashedPassword = $client->getContainer()->get('security.password_hasher')->hashPassword($user, 'password');
-        $user->setPassword($hashedPassword);
-
-        $this->entityManager->persist($user);
-        $this->entityManager->flush();
+        $user = $this->entityManager->getRepository(User::class)->findOneBy(['email' => 'test@gmail.com']);
         
         $client->loginUser($user);
         
@@ -40,8 +31,5 @@ class HomeControllerTest extends WebTestCase
 
         $this->assertResponseIsSuccessful();
         $this->assertResponseStatusCodeSame(200);
-
-        $this->entityManager->remove($user);
-        $this->entityManager->flush();
     }
 }
